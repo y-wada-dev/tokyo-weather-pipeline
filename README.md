@@ -14,13 +14,14 @@ fetch → validate → transform → load
 - **load**: idempotent delete-insert into DuckDB
 
 ## Directory structure
-
+```
 ├── dags/                  # Airflow DAG definitions
 ├── src/                   # Pipeline logic (fetch, validate, transform, load)
 ├── data/                  # Local data (gitignored)
 ├── docker-compose.yml
 ├── CONTRIBUTING.md
 └── requirements.txt
+```
 
 ## Development flow
 
