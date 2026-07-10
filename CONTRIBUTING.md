@@ -5,8 +5,8 @@
 `main` is the single source of truth. All changes go through
 feature branches and pull requests.
 
-- `feature/#<issue>-<description>` — new functionality
-- `fix/#<issue>-<description>` — bug fixes
+- `feature/<issue>-<description>` — new functionality
+- `fix/<issue>-<description>` — bug fixes
 - `docs/<description>` — documentation only
 
 ## Commit conventions
