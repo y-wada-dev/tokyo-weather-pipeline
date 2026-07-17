@@ -30,3 +30,10 @@ htmlcov/
 *.egg-info/
 dist/
 build/
+
+*.local*
+.env
+
+logs/
+plugin/
+config/
