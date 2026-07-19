@@ -1,5 +1,8 @@
 from airflow.sdk import dag, task
 from datetime import datetime
+import requests
+import json
+import os
 
 @dag(
     schedule="@daily",
@@ -10,10 +13,33 @@ def weather_daily():
 
     @task
     def fetch_weather(ds=None) -> str:
-        # TODO: Open-Meteo APIを叩き data/raw/{ds}.json に保存
         # 戻り値はファイルパス(これがXCom経由で次に渡る)
-        print(f"fetching for {ds}")
-        return f"dummy/{ds}.json"
+
+        url="https://api.open-meteo.com/v1/forecast"
+        
+        response = requests.get(
+            url,
+            params={
+                'latitude':'35',
+                'longitude':'139',
+                'hourly':'temperature_2m',
+                'timezone':'Asia/Tokyo',
+                'start_date':ds,
+                'end_date':ds,
+                }
+            )
+        response.raise_for_status()
+        data = response.json()
+
+        path = f"/opt/airflow/data/raw/{ds}.json"
+        dirname = os.path.dirname(path)
+        os.makedirs(dirname, exist_ok=True)
+
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+
+        print(f"Complete fetch for {ds}")
+        return path
 
     @task
     def validate_raw(path: str) -> str:
