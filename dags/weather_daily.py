@@ -3,6 +3,7 @@ from datetime import datetime
 import requests
 import json
 import os
+import pandas as pd
 
 @dag(
     schedule="@daily",
@@ -60,7 +61,17 @@ def weather_daily():
     @task
     def transform(path: str, ds=None) -> str:
         print(path)
-        return f"dummy/transformed_{ds}.json"
+        save_path = f"/opt/airflow/data/transformed/transformed_{ds}.csv"
+        dirname = os.path.dirname(save_path)
+        os.makedirs(dirname, exist_ok=True)
+        
+        with open(path, encoding='utf-8') as f:
+            d = json.load(f)
+        df = pd.DataFrame(d["hourly"])
+        # column1=time, type:string (ISO8601 format, e.g. 2026-07-24T00:00)
+        # column2=temperature_2m, type:float
+        df.to_csv(save_path, index=False)
+        return save_path
     
     @task
     def load_to_db(path: str, ds=None) -> None:
