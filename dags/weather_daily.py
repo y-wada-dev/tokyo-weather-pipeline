@@ -44,6 +44,17 @@ def weather_daily():
     @task
     def validate_raw(path: str) -> str:
         print(path)
+        with open(path) as f:
+            data = json.load(f)
+
+        required_keys = ["latitude", "longitude", "hourly"]
+        for key in required_keys:
+            if key not in data:
+                raise ValueError(f"missing key: {key}")
+            
+        if not isinstance(data["hourly"], dict):
+            raise ValueError("hourly must be an object")
+            
         return path
 
     @task
