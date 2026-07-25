@@ -4,6 +4,7 @@ import requests
 import json
 import os
 import pandas as pd
+import duckdb
 
 @dag(
     schedule="@daily",
@@ -75,8 +76,43 @@ def weather_daily():
     
     @task
     def load_to_db(path: str, ds=None) -> None:
-        # TODO: DELETE WHERE date = ds してから INSERT
-        
+
+        db_path = f"/opt/airflow/data/warehouse/forecast.db"
+        dirname = os.path.dirname(db_path)
+        os.makedirs(dirname, exist_ok=True)
+
+        conn = duckdb.connect(db_path)
+        table = "TEMPERATURE"
+        column1 = "date"
+        column2 = "temperature"
+        column3 = "ds"
+
+        conn.execute(f"""
+            CREATE TABLE IF NOT EXISTS {table} (
+                {column1} VARCHAR PRIMARY KEY,
+                {column2} DOUBLE,
+                {column3} date,
+                created_at TIMESTAMP DEFAULT current_timestamp
+            )
+        """)
+        conn.execute(f"""
+            DELETE FROM {table}
+            WHERE ds = ?
+            """, [ds]
+        )
+
+        df_new = pd.read_csv(path)
+        conn.register("tmp_df", df_new)
+        conn.execute(f"""
+            INSERT INTO {table} (date, temperature, ds)
+            SELECT 
+                time AS date,
+                temperature_2m AS temperature,
+                ? AS ds
+            FROM tmp_df
+            """, [ds])
+        conn.unregister("tmp_df")
+
         print(f"loading {path} for {ds}")
 
     load_to_db(transform(validate_raw(fetch_weather())))
