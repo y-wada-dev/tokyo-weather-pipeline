@@ -8,8 +8,8 @@ import duckdb
 
 @dag(
     schedule="@daily",
-    start_date=datetime(2026, 6, 1),   # 過去にするとbackfill練習ができる
-    catchup=False,                      # まずFalseで。Week5でTrueにして観察
+    start_date=datetime(2026, 7, 20),   # 過去にするとbackfill練習ができる
+    catchup=True,
 )
 def weather_daily():
 
