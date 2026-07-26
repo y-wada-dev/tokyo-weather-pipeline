@@ -1,5 +1,5 @@
 from airflow.sdk import dag, task
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 import json
 import os
@@ -10,6 +10,7 @@ import duckdb
     schedule="@daily",
     start_date=datetime(2026, 7, 20),   # 過去にするとbackfill練習ができる
     catchup=True,
+    default_args={"retries": 1, 'retry_delay': timedelta(seconds=30)},
 )
 def weather_daily():
 

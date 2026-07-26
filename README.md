@@ -26,3 +26,13 @@ fetch → validate → transform → load
 ## Development flow
 
 Branching strategy, commit conventions, and PR flow: [CONTRIBUTING.md](./CONTRIBUTING.md)
+
+## Why retries are safe
+
+`fetch_weather` overwrites the same `{ds}.json` file, and `load_to_db` deletes rows
+for the given `ds` before inserting. Both tasks are idempotent, so re-running them
+produces the same result rather than duplicating data.
+
+This is what makes automatic retries safe here: with a plain `INSERT`, a retry after
+a partial failure would duplicate rows. Idempotency is a precondition for retries,
+not just a nice property.
