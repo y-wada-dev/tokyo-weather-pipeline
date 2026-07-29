@@ -11,6 +11,7 @@ import duckdb
     start_date=datetime(2026, 7, 20),   # 過去にするとbackfill練習ができる
     catchup=True,
     default_args={"retries": 1, 'retry_delay': timedelta(seconds=30)},
+    max_active_runs=1,
 )
 def weather_daily():
 
