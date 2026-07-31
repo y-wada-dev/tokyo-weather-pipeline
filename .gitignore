@@ -38,3 +38,8 @@ logs/
 plugin/
 config/
 data/
+
+# dbt
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
