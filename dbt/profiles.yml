@@ -1,0 +1,7 @@
+tokyo_weather:
+  outputs:
+    dev:
+      type: duckdb
+      path: /opt/airflow/data/warehouse/forecast.db
+      schema: main
+  target: dev
