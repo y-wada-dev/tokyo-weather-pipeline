@@ -1,0 +1,9 @@
+version: 2
+
+models:
+  - name: mart_daily_temperature
+    columns:
+      - name: observed_date
+        data_tests:
+          - not_null
+          - unique
