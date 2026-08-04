@@ -5,6 +5,9 @@ import json
 import os
 import pandas as pd
 import duckdb
+from airflow.providers.standard.operators.bash import BashOperator
+
+DBT_DIR = "/opt/airflow/dbt"
 
 @dag(
     schedule="@daily",
@@ -14,6 +17,18 @@ import duckdb
     max_active_runs=1,
 )
 def weather_daily():
+   
+
+    dbt_run_task = BashOperator(
+        task_id="dbt_run",
+        bash_command=f"dbt run --project-dir {DBT_DIR} --profiles-dir {DBT_DIR}",
+    )
+    dbt_test_task = BashOperator(
+        task_id="dbt_test",
+        bash_command=f"dbt test --project-dir {DBT_DIR} --profiles-dir {DBT_DIR}",
+        retries=0,
+    )
+
 
     @task
     def fetch_weather(ds=None) -> str:
@@ -117,6 +132,9 @@ def weather_daily():
 
         print(f"loading {path} for {ds}")
 
-    load_to_db(transform(validate_raw(fetch_weather())))
+        conn.close()
+
+    loaded = load_to_db(transform(validate_raw(fetch_weather())))
+    loaded >> dbt_run_task >> dbt_test_task
 
 weather_daily()
